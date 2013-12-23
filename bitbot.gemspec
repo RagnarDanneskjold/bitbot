@@ -7,5 +7,5 @@ Gem::Specification.new do |s|
   s.authors     = ["dasixi"]
   s.email       = 'i@tomlion.com'
   s.files       = ["lib/bitbot.rb"]
-  s.license       = 'GLP V2'
+  s.license       = 'GPL V2'
 end
