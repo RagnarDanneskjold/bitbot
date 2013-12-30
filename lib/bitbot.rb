@@ -24,10 +24,11 @@ module BitBot
   private
   def get_adapter_instance(name)
     Class.new do
-      attr_reader :client, :options
+      #attr_reader :client, :options
 
-      def initialize(client, options={})
-        @client = client
+      def initialize(options = {})
+        @key = ENV["#{name}_key"]
+        @secret = ENV["#{name}_secret"]
         @options = options
       end
 
