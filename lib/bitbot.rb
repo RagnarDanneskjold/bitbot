@@ -1,3 +1,6 @@
+require_relative 'models'
+require_relative 'utility'
+
 module BitBot
   extend self
 
@@ -40,6 +43,8 @@ module BitBot
       alias == eql?
 
       class_eval "def name; :#{name} end"
+
+      include BitBot::Utility
     end
   end
 end
