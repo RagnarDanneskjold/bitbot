@@ -42,6 +42,14 @@ module BitBot
       end
       alias == eql?
 
+      ### Avoid to output key and secret to log files uncarefully
+      def to_s
+        "[BitBot:#{name}]"
+      end
+      def inspect
+        to_s
+      end
+
       class_eval "def name; :#{name} end"
 
       include BitBot::Utility
