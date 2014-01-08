@@ -8,4 +8,5 @@ Gem::Specification.new do |s|
   s.email       = 'i@tomlion.com'
   s.files       = ["lib/bitbot.rb"]
   s.license       = 'GPL V2'
+  s.add_dependency 'mongoid'
 end

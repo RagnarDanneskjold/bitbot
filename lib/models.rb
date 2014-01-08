@@ -1,58 +1,66 @@
 module BitBot
-  class Base
-    attr_reader :currency
-    def initialize(attrs)
-      @currency = 'USD' if ["bitfinex"].include?(name.to_s)
-      @currency = 'RMB' if ["btcchina"].include?(name.to_s)
-
-      attrs.each do |key, value|
-        next if key.nil?
-        value = value.to_f if [:last, :ask, :bid, :high, :low, :original_price, :avg_price, :amount, :remaining].include?(key.to_sym)
-        self.send("#{key}=", value) if self.respond_to?("#{key}=")
-      end
-
-      if respond_to?(:timestamp)
-        if @timestamp
-          @timestamp = @timestamp.to_i
-        else
-          @timestamp = Time.now.to_i
-        end
-      end
+  class Converter
+    attr_reader :model
+    def initialize(model)
+      @model = model
     end
 
-    def name
-      self.class.name
+    def method_missing(mth, *args, &blk)
+      value = @model.send(mth, *args, &blk)
+      (value * @model.agent.rate).round(5)
+    rescue NoMethodError
+      super
+    end
+  end
+
+  class Base
+    include Mongoid::Document
+    field :original, type: Hash
+    field :timestamp, type: Time, default: -> { Time.now }
+    field :agent
+
+    def currency
+      agent ? agent.currency : 'USD'
+    end
+
+    def rate
+      agent.rate
+    end
+
+    def converted
+      @converter ||= Converter.new(self)
     end
   end
 
   class Ticker < Base
-    attr_accessor :last, :ask, :bid, :high, :low, :vol, :timestamp
+    field :last, type: Float, default: 0
+    field :ask, type: Float, default: 0
+    field :bid, type: Float, default: 0
+    field :high, type: Float, default: 0
+    field :low, type: Float, default: 0
+    field :vol, type: Float, default: 0
   end
 
   class Order < Base
-    #### BitFinex ###
-    # "symbol"=>"btcusd", "exchange"=>nil, "avg_execution_price"=>"0.0", "side"=>"buy",
-    # "type"=>"exchange limit", "is_live"=>true, "is_cancelled"=>false, "was_forced"=>false,
-    # "original_amount"=>"0.1", "remaining_amount"=>"0.1", "executed_amount"=>"0.0"
-    #
-    #### BTCChina ###
-    # "type"=>"ask", "currency"=>"CNY", "amount"=>"0.10000000", "amount_original"=>"0.10000000", "date"=>1388473594, "status"=>"open"
-    attr_accessor :id, :type, :original_price, :avg_price, :amount, :remaining, :status, :currency, :timestamp, :order_type
-
-    def price
-      ( (original_price || avg_price).to_f * ( currency == 'RMB' ? 1 : Settings.rate ) ).round(2)
-    end
+    field :order_id, type: Integer
+    field :side, type: String
+    field :price, type: Float, default: 0
+    field :avg_price, type: Float, default: 0
+    field :amount, type: Float, default: 0
+    field :remaining, type: Float
+    field :status, type: String
 
     def executed
-      @amount.to_f - @remaining.to_f
+      (amount - remaining).round(5)
+    end
+
+    after_initialize do
+      self.remaining = amount if remaining.nil?
     end
   end
 
   class Offer < Base
-    attr_accessor :original_price, :amount, :timestamp, :currency
-
-    def price
-      (original_price * ( currency == 'RMB' ? 1 : Settings.rate )).round(2)
-    end
+    field :price, type: Float
+    field :amount, type: Float
   end
 end

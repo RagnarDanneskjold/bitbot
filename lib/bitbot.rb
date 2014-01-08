@@ -1,5 +1,7 @@
+require 'mongoid'
 require_relative 'models'
 require_relative 'utility'
+require_relative 'error'
 
 module BitBot
   extend self
