@@ -7,7 +7,7 @@ module BitBot
 
     def method_missing(mth, *args, &blk)
       value = @model.send(mth, *args, &blk)
-      (value * @model.agent.rate).round(5)
+      (value * @model.rate).round(5)
     rescue NoMethodError
       super
     end
@@ -24,7 +24,7 @@ module BitBot
     end
 
     def rate
-      agent.rate
+      agent ? agent.rate : 0
     end
 
     def converted
