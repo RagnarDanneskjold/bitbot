@@ -14,6 +14,7 @@ describe BitBot::Base do
   describe "#currency" do
     BitBot.define :cny_agent, Module.new do
       def currency; 'CNY' end
+      def rate; 1 end
     end
     subject { described_class.new }
 

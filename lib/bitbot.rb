@@ -29,8 +29,6 @@ module BitBot
   private
   def get_adapter_instance(name)
     Class.new do
-      #attr_reader :client, :options
-
       def initialize(options = {})
         @key = ENV["#{name}_key"]
         @secret = ENV["#{name}_secret"]
@@ -45,12 +43,12 @@ module BitBot
       alias == eql?
 
       ### Avoid to output key and secret to log files uncarefully
+      def as_json(*); name end
       def to_s
         "[BitBot:#{name}]"
       end
-      def inspect
-        to_s
-      end
+      alias_method :inspect, :to_s
+      alias_method :to_json, :to_s
 
       class_eval "def name; :#{name} end"
 
