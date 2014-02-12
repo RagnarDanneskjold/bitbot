@@ -17,7 +17,7 @@ module BitBot
     include Mongoid::Document
     field :original, type: Hash
     field :timestamp, type: Time, default: -> { Time.now }
-    field :agent
+    attr_accessor :agent
 
     def currency
       agent ? agent.currency : 'USD'
@@ -32,7 +32,7 @@ module BitBot
     end
 
     def as_json
-      attributes.merge('_type' => self.class.name).as_json
+      as_document.merge 'agent' => agent
     end
   end
 

@@ -33,6 +33,7 @@ module BitBot
         @key = ENV["#{name}_key"]
         @secret = ENV["#{name}_secret"]
         @options = options
+        @logger = options[:logger]
       end
 
       include BitBot.definitions[name.to_sym]
