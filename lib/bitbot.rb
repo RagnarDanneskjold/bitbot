@@ -45,7 +45,7 @@ module BitBot
 
       ### Avoid to output key and secret to log files uncarefully
       def as_json(*); name end
-      def to_s
+      def to_s(*)
         "[BitBot:#{name}]"
       end
       alias_method :inspect, :to_s
